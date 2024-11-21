@@ -19,7 +19,7 @@ a2enmod rewrite
 cp ../conf/000-default.conf /etc/apache2/sites-available
 
 #Instalamos PHP y algunos módulos de PHP para Apache y MYSQL
-sudo apt install php libapache2-mod-php php-mysql -y
+sudo apt install php libapache2-mod-php php-mysql php-curl php-zip -y
 
 #Hacemos un restart al servicio de apache para aplicar los cambios
 systemctl restart apache2
