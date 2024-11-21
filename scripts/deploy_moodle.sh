@@ -33,7 +33,7 @@ mysql -u root <<< "FLUSH PRIVILEGES"
 # Configuramos Nginx para Moodle
 cat > /etc/nginx/sites-available/moodle <<EOF
 server {
-    listen 80;
+    listen 443;
     server_name $MOODLE_DOMAIN;
     root $MOODLE_DIRECTORY;
 
