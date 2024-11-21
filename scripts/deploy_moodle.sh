@@ -6,22 +6,17 @@ set -ex
 # Importamos las variables de entorno
 source .env
 
-# Actualizamos el sistema y instalamos dependencias necesarias
-apt-get update -y
-apt-get upgrade -y
-apt-get install -y nginx mysql-server php-fpm php-mysql php-cli php-curl php-zip php-xml php-mbstring php-gd
-
 # Eliminamos descargas previas de Moodle
 rm -rf /tmp/moodle*
 
 # Descargamos Moodle
-wget https://download.moodle.org/download.php/direct/stable40/moodle-latest-40.tgz -O /tmp/moodle-latest.tgz
+wget https://download.moodle.org/download.php/direct/stable405/moodle-latest-405.tgz -P /tmp
 
 # Extraemos Moodle
-tar -zxvf /tmp/moodle-latest.tgz -C /var/www/
+tar -zxvf /tmp/moodle-latest-405.tgz -C /tmp
 
 # Movemos Moodle al directorio deseado
-mv /var/www/moodle $MOODLE_DIRECTORY
+mv /tmp/moodle $MOODLE_DIRECTORY
 
 # Configuramos permisos para Moodle
 chown -R www-data:www-data $MOODLE_DIRECTORY
