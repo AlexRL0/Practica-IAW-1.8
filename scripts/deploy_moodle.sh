@@ -28,6 +28,13 @@ mysql -u root <<< "DROP USER IF EXISTS $MOODLE_USUARIO@$MOODLE_DB_HOST"
 mysql -u root <<< "CREATE USER $MOODLE_USUARIO@$MOODLE_DB_HOST IDENTIFIED BY '$MOODLE_CONTRA'"
 mysql -u root <<< "GRANT ALL PRIVILEGES ON $MOODLE_DB_NAME.* TO $MOODLE_USUARIO@$MOODLE_DB_HOST"
 
+# Configuramos el archivo de configuración de moodle
+sed -i "s/dbuser/$MOODLE_USUARIO/" /var/www/html/lib/dml/mysqli_native_moodle_database.php
+sed -i "s/dbname/$MOODLE_DB_NAME/" /var/www/html/lib/dml/mysqli_native_moodle_database.php
+sed -i "s/dbpass/$MOODLE_CONTRA/" /var/www/html/lib/dml/mysqli_native_moodle_database.php
+
 # Asignamos los permisos necesarios
 chown -R www-data:www-data /var/www/html
+chown -R www-data:www-data /var/www
 chmod -R 775 /var/www/html
+chmod -R 775 /var/www
