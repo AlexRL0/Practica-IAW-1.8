@@ -39,8 +39,8 @@ sed -i "s/'localhost'/'${MOODLE_DB_HOST//\//\\/}'/g" $MOODLE_DIRECTORY/config.ph
 sed -i "s/'moodle'/'${MOODLE_DB_NAME//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'username'/'${MOODLE_DB_USER//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'password'/'${MOODLE_DB_PASSWORD//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
-sed -i "s#^\\\$CFG->wwwroot.*#\\\$CFG->wwwroot = 'https://${MOODLE_DOMAIN}';#g" $MOODLE_DIRECTORY/config.php 
-sed -i "s#^\\\$CFG->dataroot.*#\\\$CFG->dataroot = '${MOODLE_DATA_DIRECTORY}';#g"
+sed -i "s/'wwwroot'.*/'${MOODLE_DOMAIN//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s/'dataroot'.*/'${MOODLE_DATA_DIRECTORY//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 
 # Creamos el directorio de datos de Moodle
 mkdir -p $MOODLE_DATA_DIRECTORY
