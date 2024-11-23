@@ -40,7 +40,7 @@ sed -i "s/'moodle'/'${MOODLE_DB_NAME//\//\\/}'/g" $MOODLE_DIRECTORY/config.php
 sed -i "s/'username'/'${MOODLE_DB_USER//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'password'/'${MOODLE_DB_PASSWORD//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'\/your\/moodle\/directory'/'${MOODLE_DIRECTORY//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
-sed -i "s/'\/your\/data\/directory'/'${MOODLE_DATA_DIRECTORY//\//\\/}'/g $MOODLE_DIRECTORY/config.php "
+sed -i "s/'\/your\/data\/directory'/'${MOODLE_DATA_DIRECTORY//\//\\/}'/g" $MOODLE_DIRECTORY/config.php
 
 # Creamos el directorio de datos de Moodle
 mkdir -p $MOODLE_DATA_DIRECTORY
