@@ -6,11 +6,6 @@ set -ex
 # Importamos las variables de entorno
 source .env
 
-# Actualizamos el sistema y instalamos dependencias necesarias
-apt-get update -y
-apt-get upgrade -y
-apt-get install -y apache2 mysql-server php libapache2-mod-php php-mysql php-cli php-curl php-zip php-xml php-mbstring php-gd
-
 # Eliminamos descargas previas de Moodle
 rm -rf /tmp/moodle*
 
