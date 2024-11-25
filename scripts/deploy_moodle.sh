@@ -40,9 +40,15 @@ sed -i "s/'localhost'/'${MOODLE_DB_HOST//\//\\/}'/g" $MOODLE_DIRECTORY/config.ph
 sed -i "s/'moodle'/'${MOODLE_DB_NAME//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'username'/'${MOODLE_DB_USER//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
 sed -i "s/'password'/'${MOODLE_DB_PASSWORD//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
-
+sed -i "s|\$CFG->wwwroot.*|\$CFG->wwwroot = 'http://${MOODLE_DOMAIN//\//\\/}';|" $MOODLE_DIRECTORY/config.php
+sed -i "s|\$CFG->dataroot.*|\$CFG->dataroot = '${MOODLE_DATA_DIRECTORY//\//\\/}';|" $MOODLE_DIRECTORY/config.php
+sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/cli/php.ini
+sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/apache2/php.ini
 
 # Creamos el directorio de datos de Moodle
 mkdir -p $MOODLE_DATA_DIRECTORY
 chown -R www-data:www-data $MOODLE_DATA_DIRECTORY
 chmod -R 755 $MOODLE_DATA_DIRECTORY
+
+# Reiniciamos apache
+systemctl restart apache2
