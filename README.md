@@ -123,6 +123,6 @@ chmod -R 755 $MOODLE_DATA_DIRECTORY
 systemctl restart apache2
 ```
 
-### Paso 16. Comprobación de que WordPress y los plugins funcionan
+### Paso 16. Comprobación de que Moodle funciona
 
-![](imagenes/WordPress2-1.7.png)
+![](imagenes/Moodle.png)
