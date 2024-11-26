@@ -4,11 +4,11 @@
 
 **para la instalación vamos a tener que crear la siguiente estructura de directorios y archivos:**
 
-![](imagenes/directorio-1.7.png)
+![](imagenes/directorio-1.8.png)
 
 **Una vez creados los archivos y directorios, procedemos a la instalación de las herramientas.**
 
-## Administración de Wordpress con la utilidad WP-CLI
+## Implantación de Moodle en Amazon Web Services (AWS)
 
 ## 1. Creamos un nombre de dominio para nuestro servidor con la web `no-ip`
 
@@ -16,15 +16,15 @@
 
 Para crear el nombre de dominio en la página, tenemos que registrarnos y dirigirnos al sitio que muestra la captura y darle a **crear nombre de host**.
 
-![](imagenes/no-ip-1.7.png)
+![](imagenes/no-ip1.8.png)
 
 Una vez dado al recuadro de crear el nombre, nos sale un asistente para poner el nombre de host que queramos, el dominio que queremos que lleve, la dirección ip de la máquina o pc que queremos que tenga ese nombre de host y el tipo de registro que queremos que lleve, en nuestro caso es el **DNS Host A**
 
-![](imagenes/no-ip2-1.7.png)
+![](imagenes/no-ip2-1.8.png)
 
-Hecho esto ya podemos automatizar el proceso de la administración de Wordpress con la utilidad WP-CLI
+Hecho esto ya podemos automatizar la implantación de Moodle en Amazon Web Services (AWS)
 
-## 2. Creación del archivo `deploy_wordpress_with_wpcli` para la instalación en la raíz
+## 2. Creación del archivo `deploy_moodle` para la implementación
 
 ### Paso 1. Importamos el archivo de variables y mostramos los comandos que se van ejecutando 
 
@@ -36,139 +36,93 @@ source .env
 set -ex
 ```
 
-### Paso 2. Eliminamos descargas previas de WP-CLI
+### Paso 2. Eliminamos descargas previas de moodle
 
 ```bash
-rm -rf /tmp/wp-cli.phar
+rm -rf /tmp/moodle*
 ```
 
 > [!TIP]  
-> Hacemos esto para evitar que haya duplicados dentro de ese directorio a la hora de descargarnos el WP-CLI.
+> Hacemos esto para evitar que haya duplicados dentro de ese directorio a la hora de descargarnos moodle.
 
-### Paso 3. Descargamos el WP-CLI
+### Paso 3. Eliminamos descargas previas de /var/www/
 
 ```bash
-wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P /tmp
+rm -rf /var/www/*
 ```
 
-### Paso 4. Le asignamos permisos de ejecución
+### Paso 4. Descargamos el código fuente de Moodle
 
 ```bash
-chmod +x /tmp/wp-cli.phar
+wget https://download.moodle.org/download.php/direct/stable405/moodle-latest-405.tgz -P /tmp
 ```
 
-### Paso 5. Movemos el script WP-CLI al directorio /usr/local/bin
+### Paso 5. Extraemos Moodle
 
 ```bash
-mv /tmp/wp-cli.phar /usr/local/bin/wp
+tar -zxvf /tmp/moodle-latest-405.tgz -C /tmp
 ```
 
-### Paso 6. Eliminamos instalaciones previas en /var/www/html
+### Paso 6. Movemos Moodle al directorio deseado
 
 ```bash
-rm -rf ${WORDPRESS_DIRECTORY}/*
+mv /tmp/moodle $MOODLE_DIRECTORY
 ```
 
-### Paso 7. Descargamos el código fuente de WordPress
+### Paso 7. Configuramos permisos para apache
 
 ```bash
-wp core download --locale=es_ES --path=$WORDPRESS_DIRECTORY --allow-root
+chown -R www-data:www-data $MOODLE_DIRECTORY
+chmod -R 755 $MOODLE_DIRECTORY
 ```
 
-### Paso 8. Creamos la base de datos y el usuario para WordPress
+### Paso 8. Creamos la base de datos y el usuario para Moodle
 
 ```bash
-mysql -u root <<< "DROP DATABASE IF EXISTS $WORDPRESS_DB_NAME"
-mysql -u root <<< "CREATE DATABASE $WORDPRESS_DB_NAME"
-mysql -u root <<< "DROP USER IF EXISTS $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL"
-mysql -u root <<< "CREATE USER $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'"
-mysql -u root <<< "GRANT ALL PRIVILEGES ON $WORDPRESS_DB_NAME.* TO $WORDPRESS_DB_USER@$IP_CLIENTE_MYSQL"
+mysql -u root <<< "DROP DATABASE IF EXISTS $MOODLE_DB_NAME"
+mysql -u root <<< "CREATE DATABASE $MOODLE_DB_NAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+mysql -u root <<< "DROP USER IF EXISTS '$MOODLE_DB_USER'@'$IP_CLIENTE_MYSQL'"
+mysql -u root <<< "CREATE USER '$MOODLE_DB_USER'@'$IP_CLIENTE_MYSQL' IDENTIFIED BY '$MOODLE_DB_PASSWORD'"
+mysql -u root <<< "GRANT ALL PRIVILEGES ON $MOODLE_DB_NAME.* TO '$MOODLE_DB_USER'@'$IP_CLIENTE_MYSQL'"
+mysql -u root <<< "FLUSH PRIVILEGES"
 ```
 
 > [!IMPORTANT]  
 > Las variables las cambiamos por las que tenemos en el archivo `.env` configuradas para que se cree todo correctamente.
 
-### Paso 9. Creamos el archivo de configuración de WordPress
+### Paso 9. Creamos el archivo de configuración de moodle y lo configuramos
 
 ```bash
-wp config create --dbname=$WORDPRESS_DB_NAME --dbuser=$WORDPRESS_DB_USER --dbpass=$WORDPRESS_DB_PASSWORD --dbhost=$WORDPRESS_DB_HOST --path=$WORDPRESS_DIRECTORY --allow-root
+cp $MOODLE_DIRECTORY/config-dist.php $MOODLE_DIRECTORY/config.php
+sed -i "s/'pgsql'/'${MOODLE_TYPE//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s/'localhost'/'${MOODLE_DB_HOST//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s/'moodle'/'${MOODLE_DB_NAME//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s/'username'/'${MOODLE_DB_USER//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s/'password'/'${MOODLE_DB_PASSWORD//\//\\/}'/g" $MOODLE_DIRECTORY/config.php 
+sed -i "s|\$CFG->wwwroot.*|\$CFG->wwwroot = 'https://${MOODLE_DOMAIN//\//\\/}';|" $MOODLE_DIRECTORY/config.php
+sed -i "s|\$CFG->dataroot.*|\$CFG->dataroot = '${MOODLE_DATA_DIRECTORY//\//\\/}';|" $MOODLE_DIRECTORY/config.php
+sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/cli/php.ini
+sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/apache2/php.ini
 ```
 
-### Paso 10. Instalamos WordPress
+[!IMPORTANT]
+
+
+
+### Paso 10. Creamos el directorio de datos de Moodle
 
 ```bash
-wp core install --url=$LE_DOMAIN --title=$WORDPRESS_TITULO --admin_user=$WORDPRESS_USUARIO_ADMIN --admin_password=$WORDPRESS_CONTRA_ADMIN --admin_email=$WORDPRESS_EMAIL_ADMIN --path=$WORDPRESS_DIRECTORY --allow-root
+mkdir -p $MOODLE_DATA_DIRECTORY
+chown -R www-data:www-data $MOODLE_DATA_DIRECTORY
+chmod -R 755 $MOODLE_DATA_DIRECTORY
 ```
 
-> [!IMPORTANT]
-> A continuación, se especifican los siguientes parámetros:
-> 
-> - **`--url`**: Es el dominio del sitio WordPress. En el ejemplo anterior, usamos el dominio `practica-wordpress.ddns.net`, que es el nombre configurado en el servidor DNS. En una instalación en una máquina local, también podríamos usar `localhost` o la dirección IP del servidor.
-> - **`--title`**: Es el título del sitio WordPress.
-> - **`--admin_user`**: Es el nombre del usuario administrador.
-> - **`--admin_password`**: Es la contraseña del usuario administrador.
-> - **`--admin_email`**: Es el correo electrónico del usuario administrador.
->
-> Las variables las cambiamos por las que tenemos en el archivo `.env` configuradas para que se cree todo correctamente.
-
-### Paso 11. Instalamos y activamos el theme mindscape
+### Paso 11. Reiniciamos apache
 
 ```bash
-wp theme install mindscape --activate --path=$WORDPRESS_DIRECTORY --allow-root
-```
-
-### Paso 12. Instalamos un plugin
-
-```bash
-wp plugin install wps-hide-login --activate --path=$WORDPRESS_DIRECTORY --allow-root
-```
-
-### Paso 13. Configuramos el plugin de WHL
-
-```bash
-wp option update whl_page "$WORDPRESS_HIDE_LOGIN_URL" --path=$WORDPRESS_DIRECTORY --allow-root
-```
-
-> [!IMPORTANT]
-> Esto lo hacemos para configurar el nombre de la URL que vamos a utilizar para acceder al panel de administración de wordpress.
->  
-> La variable la cambiamos por la que tenemos en el archivo `.env` configurada para que se active correctamente.
-
-### Paso 14. Configuramos los enlaces permanentes
-
-```bash
-wp rewrite structure '/%postname%/' --path=$WORDPRESS_DIRECTORY --allow-root
-```
-
-> [!IMPORTANT]
-> El parámetro `/ %postname%/` indica el patrón de reescritura que se quiere usar. Existen otros patrones de reescritura disponibles:
-> 
-> - `/%year%/%monthnum%/%day%/%postname%/`: Año, mes, día y nombre de la entrada.
-> - `/%year%/%monthnum%/%postname%/`: Año, mes y nombre de la entrada.
-> - `/%year%/%postname%/`: Año y nombre de la entrada.
-> - `/%postname%/`: Nombre de la entrada.
-> 
-> Es importante mencionar que para que los enlaces permanentes funcionen correctamente, el módulo `mod_rewrite` de Apache debe estar activado y la directiva `AllowOverride All` debe estar configurada en el sitio virtual de Apache.
-
-### Paso 15. Cambiamos el propietario y el grupo al directorio /var/www/html/
-
-```bash
-chown -R www-data:www-data /var/www/html/
+systemctl restart apache2
 ```
 
 ### Paso 16. Comprobación de que WordPress y los plugins funcionan
 
 ![](imagenes/WordPress2-1.7.png)
-
-![](imagenes/WordPress-1.7.png)
-
-![](imagenes/WordPress3-1.7.png)
-
-![](imagenes/WordPress4-1.7.png)
-
-> [!IMPORTANT]  
-> Esto pasa al poner en la dirección web `https://practicawsarl.zapto.org/wp-admin/` ya que instalemos el plugin `wps-hide-login` que lo que hace es ocultar la página de inicio de sesión de wordpress al poner `wp-admin`. Si queremos ir al panel de administración, tendremos que poner la palabra que pusimos en la variable que le indiquemos al configurar el plugin, que en mi caso es `noimporta`.
-
-![](imagenes/WordPress5-1.7.png)
-
-![](imagenes/WordPress6-1.7.png)
