@@ -123,6 +123,6 @@ chmod -R 755 $MOODLE_DATA_DIRECTORY
 systemctl restart apache2
 ```
 
-### Paso 16. Comprobación de que Moodle funciona
+### Paso 12. Comprobación de que Moodle funciona
 
 ![](imagenes/Moodle.png)
