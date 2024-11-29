@@ -9,8 +9,8 @@ source .env
 # Eliminamos descargas previas de Moodle
 rm -rf /tmp/moodle*
 
-# Eliminamos descargas previas de /var/www/html/*
-rm -rf /var/www/html/*
+# Eliminamos descargas previas de /var/www/*
+rm -rf /var/www/*
 
 # Descargamos el código fuente de Moodle
 wget https://download.moodle.org/download.php/direct/stable405/moodle-latest-405.tgz -P /tmp
