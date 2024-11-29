@@ -105,8 +105,18 @@ sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/cli/php.ini
 sed -i "s/^max_input_vars.*/max_input_vars = 5000/" /etc/php/8.3/apache2/php.ini
 ```
 
-[!IMPORTANT]
-
+> [!IMPORTANT]  
+> **Las variables** las cambiamos por las que tenemos en el archivo `.env` configuradas para que se cree todo correctamente. 
+>> **Descripción de los comandos:** 
+> - Cambia el tipo de base de datos usado por Moodle. 
+> - Actualiza la dirección del servidor de la base de datos. 
+> - Configura el nombre de la base de datos de Moodle. 
+> - Establece el nombre de usuario para la base de datos. 
+> - Define la contraseña para la base de datos. 
+> - Actualiza la URL principal del sitio Moodle. 
+> - Configura el directorio donde Moodle almacena sus datos. 
+> - Ajusta el parámetro `max_input_vars` para PHP CLI. 
+> - Ajusta el parámetro `max_input_vars` para PHP Apache.
 
 
 ### Paso 10. Creamos el directorio de datos de Moodle
