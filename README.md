@@ -45,10 +45,10 @@ rm -rf /tmp/moodle*
 > [!TIP]  
 > Hacemos esto para evitar que haya duplicados dentro de ese directorio a la hora de descargarnos moodle.
 
-### Paso 3. Eliminamos descargas previas de /var/www/
+### Paso 3. Eliminamos descargas previas de /var/www/html/*
 
 ```bash
-rm -rf /var/www/*
+rm -rf /var/www/html/*
 ```
 
 ### Paso 4. Descargamos el código fuente de Moodle
